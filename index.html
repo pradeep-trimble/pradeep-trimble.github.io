@@ -1,1116 +1,582 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<title>Unity Mobile — How Tables Relate</title>
-<style>
-*, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#f0f4f8; overflow:hidden; height:100vh; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TUF1 Docs Hub</title>
+  <style>
+    :root {
+      --bg: #f4efe6;
+      --panel: rgba(255, 251, 245, 0.82);
+      --panel-strong: #fffaf2;
+      --text: #18222f;
+      --muted: #5f6b7a;
+      --line: rgba(24, 34, 47, 0.12);
+      --primary: #0f6d5f;
+      --primary-strong: #0b5449;
+      --accent: #d96f32;
+      --shadow: 0 24px 60px rgba(43, 33, 24, 0.12);
+      --radius-xl: 28px;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+    }
 
-/* ── Toolbar ── */
-#toolbar {
-  position:fixed; top:0; left:0; right:0; z-index:200;
-  background:#1e293b; color:#fff;
-  display:flex; align-items:center; gap:10px;
-  padding:9px 16px; border-bottom:1px solid #334155;
-  font-size:13px;
-}
-#toolbar h1 { font-size:14px; font-weight:700; white-space:nowrap; color:#fff; }
-#toolbar h1 span { color:#60a5fa; }
-#search {
-  background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15);
-  border-radius:7px; padding:5px 11px; color:#fff; font-size:12px; outline:none; width:200px;
-}
-#search::placeholder { color:#94a3b8; }
-#search:focus { border-color:#60a5fa; }
-.filter-btn {
-  padding:4px 11px; border-radius:20px; border:1px solid transparent;
-  font-size:11.5px; cursor:pointer; transition:all .15s; white-space:nowrap;
-  background:rgba(255,255,255,0.08); color:#cbd5e1;
-}
-.filter-btn:hover { background:rgba(255,255,255,0.16); }
-.filter-btn.active { color:#fff; border-color:transparent; }
-#btn-reset {
-  margin-left:auto; background:rgba(96,165,250,0.15); border:1px solid rgba(96,165,250,0.3);
-  border-radius:7px; color:#93c5fd; padding:4px 12px; font-size:12px; cursor:pointer;
-}
-#btn-reset:hover { background:rgba(96,165,250,0.25); }
-.sep { width:1px; height:20px; background:rgba(255,255,255,0.1); flex-shrink:0; }
+    * {
+      box-sizing: border-box;
+    }
 
-/* ── Canvas outer wrapper ── */
-#canvas-outer { position:fixed; top:46px; left:0; right:0; bottom:0; overflow:hidden; cursor:grab; }
-#canvas-outer:active { cursor:grabbing; }
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(217, 111, 50, 0.18), transparent 30%),
+        radial-gradient(circle at top right, rgba(15, 109, 95, 0.18), transparent 34%),
+        linear-gradient(180deg, #f8f3eb 0%, var(--bg) 100%);
+    }
 
-/* ── Canvas ── */
-#canvas { position:absolute; width:2600px; height:2400px; transform-origin:0 0; }
+    body {
+      min-height: 100vh;
+      padding: 24px;
+    }
 
-/* ── Zone backgrounds ── */
-.zone {
-  position:absolute; border-radius:16px;
-  display:flex; align-items:flex-start; padding:10px 14px;
-  font-size:11px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase;
-}
+    .shell {
+      max-width: 1500px;
+      margin: 0 auto;
+      display: grid;
+      gap: 20px;
+    }
 
-/* ── Table Cards ── */
-.tcard {
-  position:absolute; width:210px; border-radius:10px;
-  background:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05);
-  cursor:pointer; transition:box-shadow .15s, transform .15s;
-  user-select:none;
-}
-.tcard:hover { box-shadow:0 4px 16px rgba(0,0,0,0.15), 0 0 0 2px rgba(0,0,0,0.08); transform:translateY(-1px); }
-.tcard.selected { transform:translateY(-2px); }
-.tcard.faded { opacity:0.2; }
-.tcard.highlighted { }
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
+      gap: 18px;
+      align-items: stretch;
+    }
 
-.card-head {
-  border-radius:10px 10px 0 0; padding:9px 11px 7px;
-  display:flex; flex-direction:column; gap:2px;
-}
-.card-db-tag {
-  font-size:9px; text-transform:uppercase; letter-spacing:0.6px;
-  opacity:0.7; font-weight:700;
-}
-.card-title { font-size:12.5px; font-weight:800; color:#fff; line-height:1.3; }
-.card-desc { font-size:10.5px; color:rgba(255,255,255,0.75); line-height:1.4; margin-top:1px; }
+    .hero-card,
+    .meta-card,
+    .viewer-card {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow);
+    }
 
-.card-body { padding:6px 0 4px; }
-.col-row {
-  display:flex; align-items:center; gap:5px;
-  padding:2.5px 11px; font-size:10.5px; color:#374151;
-  border-bottom:1px solid #f3f4f6;
-}
-.col-row:last-child { border-bottom:none; }
-.col-row.pk-row { background:#fafafa; }
-.badge {
-  flex-shrink:0; font-size:8.5px; font-weight:700; letter-spacing:0.3px;
-  border-radius:3px; padding:1px 4px;
-}
-.badge.pk { background:#fef3c7; color:#92400e; }
-.badge.fk { background:#dbeafe; color:#1e40af; }
-.badge.pkfk { background:#ede9fe; color:#5b21b6; }
-.col-name { font-weight:500; color:#1f2937; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.col-type { color:#9ca3af; font-size:9.5px; flex-shrink:0; }
-.more-cols { padding:3px 11px 5px; font-size:9.5px; color:#9ca3af; font-style:italic; }
+    .hero-card {
+      border-radius: var(--radius-xl);
+      padding: 30px 32px;
+      position: relative;
+      overflow: hidden;
+    }
 
-/* ── SVG arrows ── */
-#arrows-svg { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; overflow:visible; }
-.arrow-path { fill:none; stroke-width:1.8; opacity:0.7; transition:opacity .15s; }
-.arrow-label { font-size:9.5px; fill:#4b5563; paint-order:stroke; stroke:#f0f4f8; stroke-width:3px; }
-.arrow-wrap.faded .arrow-path { opacity:0.08; }
-.arrow-wrap.faded .arrow-label { opacity:0.08; }
-.arrow-wrap.highlighted .arrow-path { opacity:1; stroke-width:2.5; }
-.arrow-wrap.highlighted .arrow-label { fill:#1f2937; font-weight:600; }
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -60px -70px auto;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(15, 109, 95, 0.22), transparent 70%);
+      pointer-events: none;
+    }
 
-/* ── Info panel ── */
-#info-panel {
-  position:fixed; right:0; top:46px; bottom:0; width:280px;
-  background:#fff; border-left:1px solid #e5e7eb;
-  transform:translateX(280px); transition:transform .25s;
-  overflow-y:auto; z-index:150;
-}
-#info-panel.open { transform:translateX(0); }
-#info-panel h2 { font-size:15px; font-weight:800; padding:16px 16px 4px; color:#1f2937; }
-#info-panel .ip-db { font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:#9ca3af; padding:0 16px 8px; }
-#info-panel .ip-desc { font-size:12px; color:#4b5563; line-height:1.6; padding:0 16px 12px; border-bottom:1px solid #f3f4f6; }
-#info-panel .ip-section { padding:10px 16px 4px; font-size:10px; text-transform:uppercase; letter-spacing:0.6px; color:#9ca3af; font-weight:700; }
-#info-panel .ip-col {
-  display:flex; align-items:center; gap:6px;
-  padding:4px 16px; font-size:11.5px; border-bottom:1px solid #f9fafb;
-}
-#info-panel .ip-col-name { font-weight:500; color:#1f2937; flex:1; }
-#info-panel .ip-col-type { color:#9ca3af; font-size:10px; }
-#info-panel .ip-rel {
-  display:flex; flex-direction:column; gap:1px;
-  padding:6px 16px; font-size:11px; color:#4b5563;
-  border-bottom:1px solid #f9fafb;
-}
-#info-panel .ip-rel-dir { font-size:10px; color:#9ca3af; }
-#info-panel .ip-rel-table { font-weight:700; color:#1f2937; }
-#info-panel .ip-rel-via { font-size:10px; color:#6b7280; font-family:monospace; }
-#close-panel {
-  position:absolute; top:12px; right:12px;
-  background:#f3f4f6; border:none; border-radius:6px;
-  width:26px; height:26px; font-size:14px; cursor:pointer; color:#4b5563;
-}
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.66);
+      border: 1px solid rgba(24, 34, 47, 0.08);
+      color: var(--primary-strong);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
 
-/* ── Tooltip ── */
-#tooltip {
-  position:fixed; z-index:500; background:#1e293b; color:#fff;
-  border-radius:8px; padding:7px 12px; font-size:11px; pointer-events:none;
-  opacity:0; transition:opacity .1s; max-width:240px; line-height:1.6;
-  box-shadow:0 4px 16px rgba(0,0,0,0.3);
-}
-</style>
+    h1 {
+      margin: 18px 0 10px;
+      font-size: clamp(2.2rem, 4vw, 4rem);
+      line-height: 0.95;
+      font-weight: 700;
+    }
+
+    .hero-copy {
+      max-width: 60ch;
+      font-size: 1rem;
+      line-height: 1.7;
+      color: var(--muted);
+      margin: 0 0 22px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .segmented {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(24, 34, 47, 0.08);
+    }
+
+    .view-button {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      min-height: 44px;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      font-size: 0.96rem;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    }
+
+    .view-button:hover,
+    .view-button:focus-visible {
+      background: rgba(15, 109, 95, 0.1);
+      color: var(--primary-strong);
+      outline: none;
+    }
+
+    .view-button.active {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 12px 24px rgba(15, 109, 95, 0.22);
+    }
+
+    .quick-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 12px 16px;
+      border-radius: 999px;
+      background: rgba(217, 111, 50, 0.12);
+      border: 1px solid rgba(217, 111, 50, 0.18);
+      color: #8a451f;
+      text-decoration: none;
+      font-size: 0.95rem;
+    }
+
+    .hero-notes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(24, 34, 47, 0.08);
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    .meta-card {
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .meta-card h2 {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+
+    .meta-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 0.96rem;
+    }
+
+    .meta-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    .meta-item {
+      padding: 14px 16px;
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.74);
+      border: 1px solid rgba(24, 34, 47, 0.08);
+    }
+
+    .meta-item strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.95rem;
+    }
+
+    .meta-item span {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .viewer-card {
+      border-radius: 32px;
+      padding: 16px;
+    }
+
+    .viewer-topbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 8px 16px;
+    }
+
+    .viewer-copy {
+      min-width: 0;
+    }
+
+    .viewer-title {
+      margin: 0 0 4px;
+      font-size: 1.3rem;
+    }
+
+    .viewer-subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .viewer-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(24, 34, 47, 0.08);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .viewer-status::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 6px rgba(217, 111, 50, 0.15);
+    }
+
+    .frame-stack {
+      position: relative;
+      border-radius: 24px;
+      overflow: hidden;
+      background: var(--panel-strong);
+      border: 1px solid rgba(24, 34, 47, 0.08);
+      min-height: min(78vh, 940px);
+    }
+
+    .doc-frame {
+      width: 100%;
+      height: min(78vh, 940px);
+      border: 0;
+      display: none;
+      background: #fff;
+    }
+
+    .doc-frame.active {
+      display: block;
+    }
+
+    .loading {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background:
+        linear-gradient(180deg, rgba(255, 250, 242, 0.96), rgba(255, 250, 242, 0.88));
+      color: var(--muted);
+      font-size: 0.95rem;
+      letter-spacing: 0.03em;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+      z-index: 2;
+    }
+
+    .loading.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .loading span {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(24, 34, 47, 0.08);
+    }
+
+    .loading span::before {
+      content: "";
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid rgba(15, 109, 95, 0.22);
+      border-top-color: var(--primary);
+      animation: spin 0.85s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @media (max-width: 980px) {
+      body {
+        padding: 14px;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-card,
+      .meta-card,
+      .viewer-card {
+        border-radius: 24px;
+      }
+
+      .frame-stack,
+      .doc-frame {
+        min-height: 72vh;
+        height: 72vh;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .hero-card,
+      .meta-card,
+      .viewer-card {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .hero-card {
+        padding-top: 22px;
+        padding-bottom: 22px;
+      }
+
+      h1 {
+        line-height: 1.02;
+      }
+
+      .viewer-topbar {
+        padding-left: 0;
+        padding-right: 0;
+      }
+    }
+  </style>
 </head>
 <body>
-
-<div id="toolbar">
-  <h1>Unity Mobile <span>·</span> How tables relate</h1>
-  <div class="sep"></div>
-  <input id="search" placeholder="Search table…" autocomplete="off"/>
-  <div class="sep"></div>
-  <button class="filter-btn active" data-area="all">All</button>
-  <button class="filter-btn" data-area="auth" style="--c:#10b981">Auth &amp; Org</button>
-  <button class="filter-btn" data-area="user" style="--c:#3b82f6">Users</button>
-  <button class="filter-btn" data-area="workflow" style="--c:#f59e0b">Workflow</button>
-  <button class="filter-btn" data-area="forms" style="--c:#06b6d4">Forms</button>
-  <button class="filter-btn" data-area="map" style="--c:#84cc16">Maps</button>
-  <button class="filter-btn" data-area="workitem" style="--c:#ef4444">Work Items</button>
-  <button class="filter-btn" data-area="cityworks" style="--c:#f97316">Cityworks</button>
-  <button class="filter-btn" data-area="positioning" style="--c:#6366f1">Positioning</button>
-  <button class="filter-btn" data-area="telog" style="--c:#ec4899">Telog</button>
-  <button id="btn-reset">⟳ Reset</button>
-</div>
-
-<div id="canvas-outer">
-  <div id="canvas">
-    <svg id="arrows-svg"></svg>
-  </div>
-</div>
-
-<div id="info-panel">
-  <button id="close-panel">✕</button>
-  <h2 id="ip-name"></h2>
-  <div class="ip-db" id="ip-db"></div>
-  <div class="ip-desc" id="ip-desc"></div>
-  <div class="ip-section">Columns</div>
-  <div id="ip-cols"></div>
-  <div class="ip-section">Relationships</div>
-  <div id="ip-rels"></div>
-</div>
-
-<div id="tooltip"></div>
-
-<script>
-// ═══════════════════════════════════════════════════════════
-// AREA CONFIG
-// ═══════════════════════════════════════════════════════════
-const AREAS = {
-  auth:        { label:'Auth & Org',     color:'#10b981', light:'#d1fae5', db:'global' },
-  user:        { label:'Users & Access', color:'#3b82f6', light:'#dbeafe', db:'config' },
-  app:         { label:'Applications',   color:'#8b5cf6', light:'#ede9fe', db:'config' },
-  workflow:    { label:'Workflow',        color:'#f59e0b', light:'#fef3c7', db:'config' },
-  forms:       { label:'Forms & Fields', color:'#06b6d4', light:'#cffafe', db:'config' },
-  map:         { label:'Maps & GIS',     color:'#84cc16', light:'#ecfccb', db:'config' },
-  workitem:    { label:'Work Items',     color:'#ef4444', light:'#fee2e2', db:'work'   },
-  cityworks:   { label:'Cityworks',      color:'#f97316', light:'#ffedd5', db:'config/work' },
-  positioning: { label:'Positioning',    color:'#6366f1', light:'#e0e7ff', db:'tpsdk'  },
-  telog:       { label:'Telog Sensors',  color:'#ec4899', light:'#fce7f3', db:'work'   },
-};
-
-// ═══════════════════════════════════════════════════════════
-// NODES (id, area, x, y = top-left corner, cols, desc)
-// ═══════════════════════════════════════════════════════════
-// col format: [name, type, flag]  flag: 'PK' | 'FK' | 'PK+FK' | ''
-const N = (id, area, x, y, desc, cols) => ({ id, area, x, y, desc, cols });
-const nodes = [
-
-  // ── AUTH & ORG (top-left) ──────────────────────────────
-  N('Organisation','auth', 30,80,
-    'Organisation registered on this device (multi-tenant)',
-    [['description','TEXT','PK'],['url','TEXT','PK'],['_id','INT',''],['tenant','TEXT',''],['sso','INT',''],['backend','TEXT',''],['organisationId','TEXT',''],['gisUrl','TEXT','']]),
-
-  N('Organisation_SSOConfig','auth', 280,80,
-    'OAuth2/OIDC single-sign-on config per organisation',
-    [['organisation_desc','TEXT','PK+FK'],['idp_id','INT','PK'],['provider_name','TEXT',''],['client_id','TEXT',''],['oauth2AuthorizeUrl','TEXT',''],['oauth2TokenUrl','TEXT',''],['scope','TEXT','']]),
-
-  N('Device_Users','auth', 30,340,
-    'Users who have previously logged in on this device',
-    [['organisation_name','TEXT','PK'],['user_name','TEXT','PK'],['last_logged_in','INT',''],['sso_provider_name','TEXT','']]),
-
-  N('GlobalPreference','auth', 280,340,
-    'Key-value settings stored globally on device',
-    [['key','TEXT','PK'],['value','TEXT','']]),
-
-  // ── USERS & ACCESS (top-center) ────────────────────────
-  N('UserAccount','user', 560,80,
-    'Authenticated user — stores credentials, roles and session info',
-    [['_id','TEXT','PK'],['username','TEXT',''],['displayname','TEXT',''],['active','BOOL',''],['is_supervisor','BOOL',''],['is_technician','BOOL',''],['is_rtu_manager','BOOL',''],['mfaRequired','BOOL',''],['sessionTimeout','INT','']]),
-
-  N('UserGroup','user', 820,80,
-    'Permission group; users can be members of multiple groups',
-    [['id','TEXT','PK'],['description','TEXT',''],['active','INT',''],['parent_usergroup_id','TEXT','FK']]),
-
-  N('OrganisationalUnit','user', 560,350,
-    'Department or team within the organisation',
-    [['id','TEXT','PK'],['shortCode','TEXT',''],['description','TEXT',''],['active','INT',''],['version','INT','']]),
-
-  N('IdentityProvider','user', 820,350,
-    'External identity provider (OAuth server)',
-    [['id','TEXT','PK'],['description','TEXT',''],['serverurl','TEXT',''],['active','INT',''],['webmaps','INT','']]),
-
-  // ── APPLICATIONS (top-right) ───────────────────────────
-  N('Application','app', 1100,80,
-    'App module shown to the user (e.g. Work Orders, Inspections)',
-    [['id','TEXT','PK'],['description','TEXT',''],['shortCode','TEXT',''],['enabled','INT',''],['visible','BOOL',''],['parentAppId','TEXT','FK'],['formDefinitionId','TEXT','FK'],['sync_status','TEXT',''],['lastOpened','TEXT','']]),
-
-  N('LicensedFeature','app', 1360,80,
-    'Feature flag controlled by server-side licensing',
-    [['id','TEXT','PK'],['description','TEXT',''],['enabled','INT',''],['active','INT',''],['externalId','TEXT','']]),
-
-  // ── WORKFLOW ENGINE (middle band) ──────────────────────
-  N('DomainItemClassification','workflow', 30,620,
-    'Top-level category of items — e.g. "Work Order", "Inspection"',
-    [['id','TEXT','PK'],['alias','TEXT',''],['shortCode','TEXT',''],['formDefinition','TEXT','FK'],['manualCreationAllowed','BOOL',''],['quickActionConfig','TEXT','']]),
-
-  N('DomainItemType','workflow', 300,620,
-    'Specific item sub-type — e.g. "Pothole Repair" under Work Order',
-    [['_id','TEXT','PK'],['description','TEXT',''],['domain_item_classification_id','TEXT','FK'],['initialstatus_id','TEXT','FK'],['application_id','TEXT','FK'],['formdefinition','TEXT','FK'],['internal_name','TEXT',''],['can_create_new','BOOL','']]),
-
-  N('DomainItemStatus','workflow', 570,620,
-    'Workflow status — e.g. New, In Progress, Closed, Cancelled',
-    [['_id','TEXT','PK'],['description','TEXT',''],['enableRequiredValidation','BOOL','']]),
-
-  N('Action','workflow', 840,620,
-    'Button a user can press — changes item status or triggers a script',
-    [['_id','TEXT','PK'],['description','TEXT',''],['tostatus_id','TEXT','FK'],['actiontype','TEXT',''],['sortorder','INT',''],['requiresInternet','BOOL',''],['requiresSignature','BOOL',''],['skipValidation','BOOL',''],['canApplyOnCreate','BOOL','']]),
-
-  // ── FORMS & FIELDS (left band) ─────────────────────────
-  N('FormDefinition','forms', 30,920,
-    'Screen/form layout — which fields appear and how they\'re arranged',
-    [['_id','TEXT','PK'],['name','TEXT',''],['description','TEXT',''],['form_type','TEXT',''],['maplayer_id','TEXT','FK'],['geometryType','INT',''],['scoring_enabled','INT',''],['attachment_config','TEXT','']]),
-
-  N('AttributeDefinition','forms', 300,920,
-    'A single field on a form (text box, dropdown, date picker, etc.)',
-    [['id','TEXT','PK'],['formdefinition','TEXT','PK+FK'],['aliasName','TEXT',''],['columnName','TEXT',''],['type','TEXT',''],['mandatory','BOOL',''],['editable','BOOL',''],['sortOrder','INT',''],['referenceDataTable','TEXT','FK'],['config','TEXT','']]),
-
-  N('AttributeDisplayGroup','forms', 30,1190,
-    'Tab or page group that organises fields within a form',
-    [['_id','TEXT','PK'],['formdefinition','TEXT','PK+FK'],['description','TEXT',''],['sortorder','INT',''],['displayAsTab','BOOL','']]),
-
-  N('DomainValue','forms', 300,1190,
-    'A picklist/dropdown option for a field (the allowed values)',
-    [['domainname','TEXT','PK'],['id','TEXT','PK'],['description','TEXT',''],['score','REAL',''],['active','INT',''],['sort_order','INT','']]),
-
-  N('Relationship','forms', 30,1430,
-    'Cascading field rule — selecting a parent value filters child options',
-    [['_id','TEXT','PK'],['parent_attributedefinition_id','TEXT','FK'],['parentvalue','TEXT',''],['child_attributedefinition_id','TEXT','FK'],['childvalue','TEXT',''],['defaultvalue','TEXT','']]),
-
-  N('Script','forms', 300,1430,
-    'JavaScript business logic attached to form events (save, load, change)',
-    [['id','TEXT','PK'],['content','TEXT',''],['language','TEXT',''],['scriptChain','TEXT',''],['active','INT',''],['sortOrder','INT','']]),
-
-  // ── MAPS & GIS (right band) ────────────────────────────
-  N('MapService','map', 1140,620,
-    'ArcGIS map service connection (REST endpoint)',
-    [['_id','TEXT','PK'],['resturl','TEXT',''],['description','TEXT',''],['active','BOOL',''],['is_secured','INT',''],['is_idp_enabled','INT','']]),
-
-  N('MapLayer','map', 1400,620,
-    'Individual GIS layer within a map service (feature, tile, etc.)',
-    [['_id','TEXT','PK'],['mapservice','TEXT','FK'],['gisLayerName','TEXT',''],['featuretype','TEXT',''],['entitytype','TEXT',''],['viewable','INT',''],['webmapid','TEXT',''],['hasSubtypes','BOOL',''],['layertype','TEXT','']]),
-
-  N('MapLayerSelection','map', 1660,620,
-    'Controls which layers are visible and searchable within an app',
-    [['id','TEXT','PK'],['application_id','TEXT','FK'],['maplayer_id','TEXT','FK'],['selected','INT',''],['searchable','INT',''],['recordertype','TEXT',''],['downloadinterval','INT',''],['opacity','REAL','']]),
-
-  N('OfflineMapArea','map', 1400,900,
-    'Offline tile package area the user can download for field use',
-    [['_id','TEXT','PK'],['displayName','TEXT',''],['webMapId','TEXT',''],['size','INT',''],['downloaded','BOOL',''],['portalItemId','TEXT','']]),
-
-  N('FeatureLayerDefinition','map', 1660,900,
-    'Metadata about an ArcGIS feature layer (geometry, subtypes, etc.)',
-    [['featurelayerurl','TEXT','PK'],['webmapid','TEXT','PK'],['geometrytype','TEXT',''],['renderer','TEXT',''],['allowattachments','INT',''],['subtypes','TEXT','']]),
-
-  // ── WORK ITEMS — the runtime data (center-bottom) ──────
-  N('DomainItem','workitem', 570,920,
-    '⭐ The core work item record — a work order, inspection, asset, etc.',
-    [['internalid','INT','PK'],['status','TEXT','PK'],['domainitemtype_id','TEXT','FK'],['domainitemstatus_id','TEXT','FK'],['assignedtouser_id','TEXT','FK'],['address_id','INT','FK'],['server_id','TEXT',''],['is_new','BOOL',''],['values_json','JSON',''],['relateditemtype','TEXT',''],['sync_status','TEXT',''],['guid','TEXT','']]),
-
-  N('DomainItemRelationship','workitem', 570,1270,
-    'Parent ↔ child link between two domain items',
-    [['parentDomainItem','INT','PK+FK'],['childDomainItem','INT','PK+FK'],['parentAttributeDefinition','TEXT',''],['linkType','INT',''],['status','TEXT','PK']]),
-
-  N('Address','workitem', 840,1270,
-    'Physical address associated with a work item',
-    [['id','INT','PK'],['status','TEXT','PK'],['address1','TEXT',''],['city','TEXT',''],['state','TEXT',''],['postcode','TEXT',''],['server_id','TEXT','']]),
-
-  N('Audit','workitem', 1110,1270,
-    'Immutable change history entry for a work item',
-    [['internalId','INT','PK'],['auditType','TEXT',''],['auditDate','INT',''],['referenceInternalId','INT','FK'],['auditMessage','TEXT',''],['userAccount','TEXT','']]),
-
-  N('Attachment','workitem', 570,1540,
-    'Metadata record linking a file to a work item field',
-    [['internalId','INT','PK'],['fileGlobalId','TEXT','FK'],['status','TEXT','PK'],['relatedItemInternalId','INT','FK'],['secondaryRelatedItemInternalId','INT','FK'],['attributeDefinitionId','TEXT','FK'],['active','INT',''],['description','TEXT','']]),
-
-  N('File','workitem', 840,1540,
-    'Actual file metadata — photo, PDF, signature, etc.',
-    [['globalId','TEXT','PK'],['name','TEXT',''],['filename','TEXT',''],['contentType','TEXT',''],['size','INT',''],['downloaded','INT',''],['uploaded','INT',''],['folderId','TEXT','FK'],['applicationId','TEXT','FK'],['lastModifiedDate','INT','']]),
-
-  N('Folder','workitem', 1110,1540,
-    'Document folder hierarchy for organising files per application',
-    [['id','TEXT','PK'],['applicationId','TEXT','FK'],['name','TEXT',''],['parentFolderId','TEXT','FK'],['canUpload','INT','']]),
-
-  // ── CITYWORKS INTEGRATION ──────────────────────────────
-  N('CWModule','cityworks', 1400,1270,
-    'Cityworks module type (Work Order, Service Request, Inspection, Case)',
-    [['cwModule','TEXT','PK'],['cwModuleName','TEXT','PK']]),
-
-  N('CWEntity','cityworks', 1660,1270,
-    'Cityworks entity type (asset type that links to a GIS layer)',
-    [['code','TEXT','PK'],['module','TEXT','PK+FK'],['description','TEXT',''],['entityUidField','TEXT',''],['mapLayerName','TEXT','']]),
-
-  N('CWInspectionTemplate','cityworks', 1400,1500,
-    'Inspection template with QA model, linked to a domain item type',
-    [['inspTemplateId','INT','PK'],['domainItemTypeId','TEXT','FK'],['inspTemplateName','TEXT',''],['isActive','INT',''],['qaModel','INT',''],['priority','TEXT','']]),
-
-  N('CWServiceRequestTemplate','cityworks', 1660,1500,
-    'Service request template linked to a domain item type',
-    [['problemSid','INT','PK'],['domainItemTypeId','TEXT','FK'],['problemCode','TEXT',''],['priority','TEXT',''],['applyToEntity','TEXT','FK']]),
-
-  N('CWSavedQueries','cityworks', 1400,1730,
-    'Saved Cityworks search query the user can run',
-    [['createdBySid','INT','PK'],['id','INT','PK'],['name','TEXT',''],['queryType','TEXT',''],['isDownloaded','INT',''],['query','TEXT','']]),
-
-  // ── POSITIONING / GNSS ────────────────────────────────
-  N('NtripServer','positioning', 30,1720,
-    'NTRIP caster server that streams GNSS correction data',
-    [['id','TEXT','PK'],['url','TEXT',''],['port','INT',''],['userName','TEXT',''],['correctionDatum','TEXT',''],['active','INT','']]),
-
-  N('NtripSource','positioning', 280,1720,
-    'Mount point / stream source on an NTRIP server',
-    [['id','TEXT','PK'],['ntripServer','TEXT','FK'],['source','TEXT',''],['description','TEXT',''],['active','INT','']]),
-
-  N('Device','positioning', 30,1960,
-    'Paired GNSS hardware device (Bluetooth/USB)',
-    [['address','TEXT','PK'],['name','TEXT',''],['lastConnected','INT','']]),
-
-  N('PositioningConfig','positioning', 280,1960,
-    'Named positioning profile (accuracy settings, correction source)',
-    [['id','TEXT','PK'],['description','TEXT',''],['connectionType','INT',''],['primaryType','TEXT',''],['ntripServer','TEXT','FK'],['ntripSource','TEXT','FK'],['antennaHeight','REAL',''],['active','INT','']]),
-
-  // ── TELOG SENSORS ─────────────────────────────────────
-  N('TelogSiteType','telog', 580,1720,
-    'Classification of a Telog monitoring site (water, gas, etc.)',
-    [['name','TEXT','PK'],['description','TEXT',''],['isCore','INT',''],['isDefault','INT','']]),
-
-  N('TelogMeasurementType','telog', 830,1720,
-    'Category of sensor measurement (pressure, flow, level…)',
-    [['id','INT','PK'],['classId','INT',''],['isHidden','INT','']]),
-
-  N('TelogMeasurementUnit','telog', 1080,1720,
-    'Unit of measurement (m³/h, bar, mm, etc.)',
-    [['id','INT','PK'],['shortName','TEXT',''],['longName','TEXT',''],['conversion','REAL',''],['isDefault','INT','']]),
-
-  N('TelogMeasurement','telog', 580,1960,
-    'A sensor measurement registered on a monitoring site',
-    [['id','INT','PK'],['name','TEXT',''],['siteId','INT',''],['typeId','INT','FK'],['unitId','INT','FK'],['isHidden','INT',''],['isVirtual','INT','']]),
-
-  N('TelogSensorChannel','telog', 830,1960,
-    'Physical sensor channel configuration (slope, offset, enabled)',
-    [['recId','TEXT','PK'],['channelIndex','INT','PK'],['channelName','TEXT',''],['measurementId','INT','FK'],['enabled','INT',''],['chnlType','INT',''],['displaySlope','REAL',''],['displayOffset','REAL','']]),
-];
-
-// ═══════════════════════════════════════════════════════════
-// LINKS (relationships between tables)
-// Each link: { from, to, fromSide, toSide, label, via }
-// 'via' = brief plain-English explanation of the column join
-// ═══════════════════════════════════════════════════════════
-const links = [
-  // AUTH & ORG
-  { from:'Organisation',         to:'Organisation_SSOConfig', fromSide:'right', toSide:'left',
-    label:'has SSO config', via:'description → organisation_desc' },
-  { from:'Organisation',         to:'Device_Users',            fromSide:'bottom', toSide:'top',
-    label:'device tracks users', via:'(implicit: organisation_name)' },
-
-  // USERS
-  { from:'UserAccount',          to:'OrganisationalUnit',      fromSide:'bottom', toSide:'top',
-    label:'belongs to dept', via:'via UserAccount_OrganisationalUnit' },
-  { from:'UserAccount',          to:'UserGroup',               fromSide:'right',  toSide:'left',
-    label:'member of group', via:'via UserAccount_UserGroup' },
-  { from:'UserGroup',            to:'UserGroup',               fromSide:'bottom', toSide:'right',
-    label:'child of group', via:'parent_usergroup_id → id' },
-
-  // USERS → APPLICATIONS
-  { from:'UserAccount',          to:'Application',             fromSide:'right',  toSide:'left',
-    label:'has access to', via:'via UserAccount_Application' },
-
-  // APPLICATIONS
-  { from:'Application',          to:'Application',             fromSide:'top',    toSide:'right',
-    label:'sub-app of', via:'parentAppId → id' },
-  { from:'Application',          to:'LicensedFeature',         fromSide:'right',  toSide:'left',
-    label:'licensed for', via:'via UserAccount_LicensedFeature' },
-
-  // APPLICATION → WORKFLOW
-  { from:'Application',          to:'DomainItemType',          fromSide:'bottom', toSide:'top',
-    label:'shows item types', via:'via Application_DomainItemType' },
-
-  // WORKFLOW CORE
-  { from:'DomainItemClassification', to:'DomainItemType',      fromSide:'right',  toSide:'left',
-    label:'groups types', via:'id → domain_item_classification_id' },
-  { from:'DomainItemType',       to:'DomainItemStatus',        fromSide:'right',  toSide:'left',
-    label:'starts at status', via:'initialstatus_id → _id' },
-  { from:'DomainItemType',       to:'Action',                  fromSide:'right',  toSide:'left',
-    label:'allowed actions', via:'via DomainItemType_Action' },
-  { from:'DomainItemStatus',     to:'Action',                  fromSide:'right',  toSide:'left',
-    label:'action available\nfrom this status', via:'DomainItemType_Action.fromstatus_id' },
-  { from:'Action',               to:'DomainItemStatus',        fromSide:'bottom', toSide:'bottom',
-    label:'transitions to\nnew status', via:'tostatus_id → _id' },
-
-  // WORKFLOW → FORMS
-  { from:'DomainItemClassification', to:'FormDefinition',      fromSide:'bottom', toSide:'top',
-    label:'default form', via:'formDefinition → _id' },
-  { from:'DomainItemType',       to:'FormDefinition',          fromSide:'bottom', toSide:'top',
-    label:'custom form\nfor this type', via:'formdefinition → _id' },
-
-  // FORMS → FIELDS
-  { from:'FormDefinition',       to:'AttributeDefinition',     fromSide:'right',  toSide:'left',
-    label:'contains fields', via:'_id → formdefinition' },
-  { from:'FormDefinition',       to:'AttributeDisplayGroup',   fromSide:'bottom', toSide:'top',
-    label:'tab/page groups', via:'_id → formdefinition' },
-  { from:'AttributeDefinition',  to:'DomainValue',             fromSide:'bottom', toSide:'top',
-    label:'picklist values', via:'referenceDataTable → domainname' },
-  { from:'AttributeDefinition',  to:'Relationship',            fromSide:'bottom', toSide:'top',
-    label:'cascades child\nfield values', via:'id → parent_attributedefinition_id' },
-  { from:'AttributeDefinition',  to:'Script',                  fromSide:'bottom', toSide:'top',
-    label:'field-level script', via:'script → id' },
-
-  // FORMS → MAPS
-  { from:'FormDefinition',       to:'MapLayer',                fromSide:'right',  toSide:'left',
-    label:'edit features\non this layer', via:'maplayer_id → _id' },
-
-  // MAPS
-  { from:'MapLayer',             to:'MapService',              fromSide:'left',   toSide:'right',
-    label:'served by', via:'mapservice → _id' },
-  { from:'MapLayerSelection',    to:'MapLayer',                fromSide:'left',   toSide:'right',
-    label:'shows this layer', via:'maplayer_id → _id' },
-  { from:'MapLayerSelection',    to:'Application',             fromSide:'top',    toSide:'bottom',
-    label:'configured for\nthis app', via:'application_id → id' },
-
-  // APPLICATION → WORK ITEMS
-  { from:'Application',          to:'File',                    fromSide:'bottom', toSide:'top',
-    label:'owns files', via:'id → applicationId' },
-
-  // WORK ITEMS CORE
-  { from:'DomainItemType',       to:'DomainItem',              fromSide:'bottom', toSide:'top',
-    label:'instances of\nthis type', via:'_id → domainitemtype_id' },
-  { from:'DomainItemStatus',     to:'DomainItem',              fromSide:'bottom', toSide:'top',
-    label:'has this status', via:'_id → domainitemstatus_id' },
-  { from:'UserAccount',          to:'DomainItem',              fromSide:'bottom', toSide:'top',
-    label:'assigned to', via:'_id → assignedtouser_id' },
-  { from:'DomainItem',           to:'Address',                 fromSide:'bottom', toSide:'top',
-    label:'located at', via:'address_id → id' },
-  { from:'DomainItem',           to:'DomainItemRelationship',  fromSide:'bottom', toSide:'top',
-    label:'parent or child\nof another item', via:'internalid → parentDomainItem / childDomainItem' },
-  { from:'DomainItem',           to:'Audit',                   fromSide:'right',  toSide:'left',
-    label:'audit trail', via:'internalid → referenceInternalId' },
-
-  // ATTACHMENTS
-  { from:'DomainItem',           to:'Attachment',              fromSide:'bottom', toSide:'top',
-    label:'has attachments\n(photos, docs)', via:'internalid → relatedItemInternalId' },
-  { from:'Attachment',           to:'File',                    fromSide:'right',  toSide:'left',
-    label:'references\nthis file', via:'fileGlobalId → globalId' },
-  { from:'File',                 to:'Folder',                  fromSide:'right',  toSide:'left',
-    label:'stored in', via:'folderId → id' },
-  { from:'Folder',               to:'Folder',                  fromSide:'top',    toSide:'right',
-    label:'subfolder of', via:'parentFolderId → id' },
-
-  // CITYWORKS
-  { from:'CWModule',             to:'CWEntity',                fromSide:'right',  toSide:'left',
-    label:'contains\nasset types', via:'cwModule → module' },
-  { from:'CWEntity',             to:'MapLayer',                fromSide:'top',    toSide:'bottom',
-    label:'visible on\nGIS layer', via:'mapLayerName via CWAssetAliases' },
-  { from:'CWInspectionTemplate', to:'DomainItemType',          fromSide:'top',    toSide:'bottom',
-    label:'drives\nthis item type', via:'domainItemTypeId → _id' },
-  { from:'CWServiceRequestTemplate', to:'DomainItemType',      fromSide:'top',    toSide:'bottom',
-    label:'drives\nthis item type', via:'domainItemTypeId → _id' },
-  { from:'CWServiceRequestTemplate', to:'CWEntity',            fromSide:'right',  toSide:'bottom',
-    label:'applied to\nentity type', via:'applyToEntity → code' },
-  { from:'DomainItem',           to:'CWModule',                fromSide:'right',  toSide:'left',
-    label:'Cityworks work\nitem record', via:'relateditemtype (WO/SR/Inspection/Case)' },
-
-  // POSITIONING
-  { from:'NtripSource',          to:'NtripServer',             fromSide:'left',   toSide:'bottom',
-    label:'stream from', via:'ntripServer → id' },
-  { from:'PositioningConfig',    to:'NtripServer',             fromSide:'top',    toSide:'bottom',
-    label:'uses server', via:'ntripServer → id' },
-  { from:'PositioningConfig',    to:'NtripSource',             fromSide:'left',   toSide:'bottom',
-    label:'uses source', via:'ntripSource → id' },
-  { from:'Device',               to:'PositioningConfig',       fromSide:'right',  toSide:'left',
-    label:'configured\nwith profile', via:'via PositioningConfigDevice' },
-
-  // TELOG
-  { from:'TelogMeasurement',     to:'TelogMeasurementType',    fromSide:'right',  toSide:'left',
-    label:'measurement type', via:'typeId → id' },
-  { from:'TelogMeasurement',     to:'TelogMeasurementUnit',    fromSide:'right',  toSide:'right',
-    label:'measured in', via:'unitId → id' },
-  { from:'TelogSensorChannel',   to:'TelogMeasurement',        fromSide:'left',   toSide:'bottom',
-    label:'captures', via:'measurementId → id' },
-];
-
-// ═══════════════════════════════════════════════════════════
-// ZONE BACKGROUND RECTS (x, y, w, h, area)
-// ═══════════════════════════════════════════════════════════
-const zones = [
-  { area:'auth',        x:10,   y:50,   w:510,  h:440 },
-  { area:'user',        x:540,  y:50,   w:510,  h:440 },
-  { area:'app',         x:1080, y:50,   w:520,  h:300 },
-  { area:'workflow',    x:10,   y:580,  w:880,  h:250 },
-  { area:'forms',       x:10,   y:880,  w:540,  h:720 },
-  { area:'map',         x:1120, y:580,  w:820,  h:480 },
-  { area:'workitem',    x:550,  y:880,  w:820,  h:1000 },
-  { area:'cityworks',   x:1380, y:1230, w:520,  h:720 },
-  { area:'positioning', x:10,   y:1680, w:510,  h:440 },
-  { area:'telog',       x:560,  y:1680, w:770,  h:440 },
-];
-
-// ═══════════════════════════════════════════════════════════
-// CARD HEIGHT CALCULATION
-// ═══════════════════════════════════════════════════════════
-const CARD_W = 210;
-const CARD_HEAD_H = 65;
-const COL_ROW_H = 22;
-const MAX_COLS = 6;
-const FOOTER_H = 18;
-
-function cardHeight(node) {
-  const visible = Math.min(node.cols.length, MAX_COLS);
-  const hasMore = node.cols.length > MAX_COLS;
-  return CARD_HEAD_H + visible * COL_ROW_H + (hasMore ? FOOTER_H : 0) + 6;
-}
-
-// Card center point
-function cardCenter(node) {
-  return { x: node.x + CARD_W / 2, y: node.y + cardHeight(node) / 2 };
-}
-
-// Edge midpoint based on side
-function edgePoint(node, side) {
-  const h = cardHeight(node);
-  const x = node.x, y = node.y;
-  if (side === 'left')   return { x: x,           y: y + h/2 };
-  if (side === 'right')  return { x: x + CARD_W,  y: y + h/2 };
-  if (side === 'top')    return { x: x + CARD_W/2, y: y };
-  if (side === 'bottom') return { x: x + CARD_W/2, y: y + h };
-  return { x: x + CARD_W/2, y: y + h/2 };
-}
-
-// ═══════════════════════════════════════════════════════════
-// BUILD NODE MAP
-// ═══════════════════════════════════════════════════════════
-const nodeMap = {};
-nodes.forEach(n => nodeMap[n.id] = n);
-
-// ═══════════════════════════════════════════════════════════
-// RENDER ZONES
-// ═══════════════════════════════════════════════════════════
-const svg = document.getElementById('arrows-svg');
-svg.setAttribute('width', '2600');
-svg.setAttribute('height', '2400');
-
-// Defs
-const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
-svg.appendChild(defs);
-
-// Arrowhead markers per area color
-Object.entries(AREAS).forEach(([area, cfg]) => {
-  const m = document.createElementNS('http://www.w3.org/2000/svg','marker');
-  m.setAttribute('id', `arr-${area}`);
-  m.setAttribute('markerWidth','8'); m.setAttribute('markerHeight','6');
-  m.setAttribute('refX','7'); m.setAttribute('refY','3');
-  m.setAttribute('orient','auto');
-  const p = document.createElementNS('http://www.w3.org/2000/svg','polygon');
-  p.setAttribute('points','0 0, 8 3, 0 6');
-  p.setAttribute('fill', cfg.color);
-  m.appendChild(p);
-  defs.appendChild(m);
-});
-
-// Zone backgrounds
-zones.forEach(z => {
-  const cfg = AREAS[z.area];
-  const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
-  rect.setAttribute('x', z.x); rect.setAttribute('y', z.y);
-  rect.setAttribute('width', z.w); rect.setAttribute('height', z.h);
-  rect.setAttribute('rx','14'); rect.setAttribute('fill', cfg.light);
-  rect.setAttribute('stroke', cfg.color);
-  rect.setAttribute('stroke-width','1.5');
-  rect.setAttribute('opacity','0.6');
-  svg.appendChild(rect);
-
-  // Zone label
-  const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
-  txt.setAttribute('x', z.x + 14); txt.setAttribute('y', z.y + 22);
-  txt.setAttribute('font-size','10'); txt.setAttribute('font-weight','800');
-  txt.setAttribute('fill', cfg.color); txt.setAttribute('letter-spacing','0.5');
-  txt.setAttribute('text-transform','uppercase');
-  txt.textContent = cfg.label.toUpperCase();
-  svg.appendChild(txt);
-});
-
-// ═══════════════════════════════════════════════════════════
-// RENDER CARDS
-// ═══════════════════════════════════════════════════════════
-const canvas = document.getElementById('canvas');
-
-nodes.forEach(node => {
-  const cfg = AREAS[node.area];
-  const h = cardHeight(node);
-
-  const div = document.createElement('div');
-  div.className = 'tcard';
-  div.id = `card-${node.id}`;
-  div.dataset.id = node.id;
-  div.dataset.area = node.area;
-  div.style.left = node.x + 'px';
-  div.style.top  = node.y + 'px';
-
-  // Header
-  const head = document.createElement('div');
-  head.className = 'card-head';
-  head.style.background = cfg.color;
-
-  const dbTag = document.createElement('div');
-  dbTag.className = 'card-db-tag';
-  dbTag.textContent = cfg.db + ' · ' + node.area;
-  head.appendChild(dbTag);
-
-  const title = document.createElement('div');
-  title.className = 'card-title';
-  title.textContent = node.id;
-  head.appendChild(title);
-
-  const desc = document.createElement('div');
-  desc.className = 'card-desc';
-  desc.textContent = node.desc;
-  head.appendChild(desc);
-
-  div.appendChild(head);
-
-  // Body
-  const body = document.createElement('div');
-  body.className = 'card-body';
-
-  const visible = Math.min(node.cols.length, MAX_COLS);
-  for (let i = 0; i < visible; i++) {
-    const [name, type, flag] = node.cols[i];
-    const row = document.createElement('div');
-    row.className = 'col-row' + (flag.includes('PK') ? ' pk-row' : '');
-
-    if (flag) {
-      const badge = document.createElement('span');
-      badge.className = 'badge ' + (flag === 'PK+FK' ? 'pkfk' : flag === 'PK' ? 'pk' : 'fk');
-      badge.textContent = flag;
-      row.appendChild(badge);
+  <main class="shell">
+    <section class="hero">
+      <article class="hero-card">
+        <div class="eyebrow">TUF1 Documentation Hub</div>
+        <h1>Architecture docs with a cleaner front door.</h1>
+        <p class="hero-copy">
+          This landing page now opens each document in its own isolated view, so the database explorer and the project
+          architecture guide both keep their styles, scripts, and scroll behavior intact.
+        </p>
+        <div class="actions">
+          <div class="segmented" role="tablist" aria-label="Documentation views">
+            <button class="view-button active" type="button" data-view="database" role="tab" aria-selected="true">
+              Database relationships
+            </button>
+            <button class="view-button" type="button" data-view="architecture" role="tab" aria-selected="false">
+              Project architecture
+            </button>
+          </div>
+          <a class="quick-link" id="openCurrentDoc" href="db_arch.html" target="_blank" rel="noopener noreferrer">
+            Open current doc directly
+          </a>
+        </div>
+        <div class="hero-notes">
+          <span class="chip">Local file friendly</span>
+          <span class="chip">Scripts stay interactive</span>
+          <span class="chip">Shared stylesheet preserved</span>
+        </div>
+      </article>
+
+      <aside class="meta-card">
+        <h2>What changed</h2>
+        <p>
+          The old page used `fetch()` plus `innerHTML`, which quietly prevented the embedded scripts from running. That
+          made both documentation pages feel loaded while their real interactions were broken.
+        </p>
+        <div class="meta-list">
+          <div class="meta-item">
+            <strong>Database view</strong>
+            <span>Loads the table relationship explorer as its own document, with pan, search, and node details intact.</span>
+          </div>
+          <div class="meta-item">
+            <strong>Architecture view</strong>
+            <span>Loads the long-form guide with its own navigation, search, and detail drawer without style collisions.</span>
+          </div>
+          <div class="meta-item">
+            <strong>Hub behavior</strong>
+            <span>Remembers the selected document in the URL hash and keeps the inactive view ready to switch back to.</span>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="viewer-card">
+      <div class="viewer-topbar">
+        <div class="viewer-copy">
+          <h2 class="viewer-title" id="viewerTitle">Database relationships</h2>
+          <p class="viewer-subtitle" id="viewerSubtitle">Interactive schema map for the Unity Mobile data model.</p>
+        </div>
+        <div class="viewer-status" id="viewerStatus">Ready</div>
+      </div>
+
+      <div class="frame-stack">
+        <div class="loading" id="loadingState">
+          <span>Loading document</span>
+        </div>
+        <iframe
+          class="doc-frame active"
+          id="frame-database"
+          title="Database relationships documentation"
+          src="db_arch.html"
+        ></iframe>
+        <iframe
+          class="doc-frame"
+          id="frame-architecture"
+          title="Project architecture documentation"
+          data-src="project_arch.html"
+        ></iframe>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const views = {
+      database: {
+        id: "database",
+        title: "Database relationships",
+        subtitle: "Interactive schema map for the Unity Mobile data model.",
+        src: "db_arch.html"
+      },
+      architecture: {
+        id: "architecture",
+        title: "Project architecture",
+        subtitle: "Long-form system guide with sections, search, and module detail panels.",
+        src: "project_arch.html"
+      }
+    };
+
+    const buttons = Array.from(document.querySelectorAll(".view-button"));
+    const frames = {
+      database: document.getElementById("frame-database"),
+      architecture: document.getElementById("frame-architecture")
+    };
+
+    const loadingState = document.getElementById("loadingState");
+    const viewerTitle = document.getElementById("viewerTitle");
+    const viewerSubtitle = document.getElementById("viewerSubtitle");
+    const viewerStatus = document.getElementById("viewerStatus");
+    const openCurrentDoc = document.getElementById("openCurrentDoc");
+    const loadedViews = new Set();
+
+    function getRequestedView() {
+      const hash = window.location.hash.replace("#", "");
+      return views[hash] ? hash : "database";
     }
 
-    const nm = document.createElement('span');
-    nm.className = 'col-name';
-    nm.textContent = name;
-    row.appendChild(nm);
-
-    const tp = document.createElement('span');
-    tp.className = 'col-type';
-    tp.textContent = type;
-    row.appendChild(tp);
-
-    body.appendChild(row);
-  }
-
-  if (node.cols.length > MAX_COLS) {
-    const more = document.createElement('div');
-    more.className = 'more-cols';
-    more.textContent = `+${node.cols.length - MAX_COLS} more columns`;
-    body.appendChild(more);
-  }
-
-  div.appendChild(body);
-  canvas.appendChild(div);
-
-  // Click handler
-  div.addEventListener('click', () => selectNode(node.id));
-});
-
-// ═══════════════════════════════════════════════════════════
-// RENDER ARROWS
-// ═══════════════════════════════════════════════════════════
-const arrowGroups = [];
-
-links.forEach((lnk, i) => {
-  const src = nodeMap[lnk.from];
-  const tgt = nodeMap[lnk.to];
-  if (!src || !tgt) return;
-
-  const cfg = AREAS[src.area];
-  const p1 = edgePoint(src, lnk.fromSide);
-  const p2 = edgePoint(tgt, lnk.toSide);
-
-  // Bezier control points
-  const dx = p2.x - p1.x;
-  const dy = p2.y - p1.y;
-  let c1x, c1y, c2x, c2y;
-
-  if (lnk.fromSide === 'right' && lnk.toSide === 'left') {
-    const off = Math.max(60, Math.abs(dx) * 0.45);
-    c1x = p1.x + off; c1y = p1.y;
-    c2x = p2.x - off; c2y = p2.y;
-  } else if (lnk.fromSide === 'left' && lnk.toSide === 'right') {
-    const off = Math.max(60, Math.abs(dx) * 0.45);
-    c1x = p1.x - off; c1y = p1.y;
-    c2x = p2.x + off; c2y = p2.y;
-  } else if (lnk.fromSide === 'bottom' && lnk.toSide === 'top') {
-    const off = Math.max(50, Math.abs(dy) * 0.45);
-    c1x = p1.x; c1y = p1.y + off;
-    c2x = p2.x; c2y = p2.y - off;
-  } else if (lnk.fromSide === 'top' && lnk.toSide === 'bottom') {
-    const off = Math.max(50, Math.abs(dy) * 0.45);
-    c1x = p1.x; c1y = p1.y - off;
-    c2x = p2.x; c2y = p2.y + off;
-  } else if (lnk.fromSide === 'bottom' && lnk.toSide === 'bottom') {
-    // Loop going down
-    const maxY = Math.max(p1.y, p2.y) + 60;
-    c1x = p1.x; c1y = maxY;
-    c2x = p2.x; c2y = maxY;
-  } else if (lnk.fromSide === 'top' && lnk.toSide === 'right') {
-    c1x = p1.x; c1y = p1.y - 60;
-    c2x = p2.x + 60; c2y = p2.y;
-  } else if (lnk.fromSide === 'bottom' && lnk.toSide === 'right') {
-    c1x = p1.x; c1y = p1.y + 60;
-    c2x = p2.x + 60; c2y = p2.y;
-  } else if (lnk.fromSide === 'left' && lnk.toSide === 'bottom') {
-    c1x = p1.x - 60; c1y = p1.y;
-    c2x = p2.x; c2y = p2.y + 60;
-  } else if (lnk.fromSide === 'right' && lnk.toSide === 'bottom') {
-    c1x = p1.x + 60; c1y = p1.y;
-    c2x = p2.x; c2y = p2.y + 60;
-  } else if (lnk.fromSide === 'top' && lnk.toSide === 'left') {
-    c1x = p1.x; c1y = p1.y - 60;
-    c2x = p2.x - 60; c2y = p2.y;
-  } else {
-    const off = Math.max(50, Math.max(Math.abs(dx), Math.abs(dy)) * 0.4);
-    c1x = p1.x + (dx > 0 ? off : -off);
-    c1y = p1.y + (dy > 0 ? off : -off);
-    c2x = p2.x - (dx > 0 ? off : -off);
-    c2y = p2.y - (dy > 0 ? off : -off);
-  }
-
-  // Self-reference (same node)
-  if (lnk.from === lnk.to) {
-    c1x = p1.x + 80; c1y = p1.y - 40;
-    c2x = p2.x + 80; c2y = p2.y + 40;
-  }
-
-  const d = `M${p1.x},${p1.y} C${c1x},${c1y} ${c2x},${c2y} ${p2.x},${p2.y}`;
-
-  // Group
-  const g = document.createElementNS('http://www.w3.org/2000/svg','g');
-  g.className.baseVal = 'arrow-wrap';
-  g.dataset.from = lnk.from;
-  g.dataset.to = lnk.to;
-
-  // Path
-  const path = document.createElementNS('http://www.w3.org/2000/svg','path');
-  path.setAttribute('d', d);
-  path.setAttribute('class','arrow-path');
-  path.setAttribute('stroke', cfg.color);
-  path.setAttribute('marker-end', `url(#arr-${src.area})`);
-  g.appendChild(path);
-
-  // Label at midpoint of bezier
-  const mt = 0.5;
-  const mx = (1-mt)**3*p1.x + 3*(1-mt)**2*mt*c1x + 3*(1-mt)*mt**2*c2x + mt**3*p2.x;
-  const my = (1-mt)**3*p1.y + 3*(1-mt)**2*mt*c1y + 3*(1-mt)*mt**2*c2y + mt**3*p2.y;
-
-  const labelLines = lnk.label.split('\n');
-  const labelG = document.createElementNS('http://www.w3.org/2000/svg','g');
-
-  // Label background
-  const bg = document.createElementNS('http://www.w3.org/2000/svg','rect');
-  bg.setAttribute('rx','4');
-  bg.setAttribute('fill','white');
-  bg.setAttribute('opacity','0.85');
-  labelG.appendChild(bg);
-
-  const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
-  txt.setAttribute('class','arrow-label');
-  txt.setAttribute('text-anchor','middle');
-
-  labelLines.forEach((line, li) => {
-    const ts = document.createElementNS('http://www.w3.org/2000/svg','tspan');
-    ts.setAttribute('x', mx);
-    ts.setAttribute('dy', li === 0 ? '0' : '12');
-    ts.textContent = line;
-    txt.appendChild(ts);
-  });
-
-  const lineH = 12;
-  const approxW = Math.max(...labelLines.map(l => l.length)) * 5.5 + 8;
-  const approxH = labelLines.length * lineH + 4;
-  txt.setAttribute('x', mx);
-  txt.setAttribute('y', my - (labelLines.length > 1 ? (labelLines.length-1)*6 : 0));
-
-  bg.setAttribute('x', mx - approxW/2);
-  bg.setAttribute('y', my - (labelLines.length > 1 ? (labelLines.length-1)*6 : 0) - 9);
-  bg.setAttribute('width', approxW);
-  bg.setAttribute('height', approxH);
-
-  labelG.appendChild(txt);
-  g.appendChild(labelG);
-
-  svg.appendChild(g);
-
-  arrowGroups.push({ g, from: lnk.from, to: lnk.to, via: lnk.via, label: lnk.label });
-});
-
-// ═══════════════════════════════════════════════════════════
-// PAN / ZOOM
-// ═══════════════════════════════════════════════════════════
-const outer = document.getElementById('canvas-outer');
-let scale = 0.5, tx = 40, ty = 20;
-let dragging = false, lastX, lastY;
-
-function applyTransform() {
-  canvas.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`;
-}
-applyTransform();
-
-outer.addEventListener('wheel', e => {
-  e.preventDefault();
-  const rect = outer.getBoundingClientRect();
-  const cx = e.clientX - rect.left;
-  const cy = e.clientY - rect.top;
-  const delta = e.deltaY < 0 ? 1.12 : 0.89;
-  const newScale = Math.min(2, Math.max(0.15, scale * delta));
-  tx = cx - (cx - tx) * newScale / scale;
-  ty = cy - (cy - ty) * newScale / scale;
-  scale = newScale;
-  applyTransform();
-}, { passive: false });
-
-outer.addEventListener('mousedown', e => {
-  if (e.target.closest('.tcard')) return;
-  dragging = true; lastX = e.clientX; lastY = e.clientY;
-});
-window.addEventListener('mousemove', e => {
-  if (!dragging) return;
-  tx += e.clientX - lastX; ty += e.clientY - lastY;
-  lastX = e.clientX; lastY = e.clientY;
-  applyTransform();
-});
-window.addEventListener('mouseup', () => dragging = false);
-
-// Touch
-outer.addEventListener('touchstart', e => {
-  if (e.touches.length === 1) { lastX = e.touches[0].clientX; lastY = e.touches[0].clientY; dragging = true; }
-}, { passive: true });
-outer.addEventListener('touchmove', e => {
-  if (dragging && e.touches.length === 1) {
-    tx += e.touches[0].clientX - lastX; ty += e.touches[0].clientY - lastY;
-    lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
-    applyTransform();
-  }
-}, { passive: true });
-outer.addEventListener('touchend', () => dragging = false);
-
-// ═══════════════════════════════════════════════════════════
-// SELECTION & HIGHLIGHT
-// ═══════════════════════════════════════════════════════════
-let selectedId = null;
-
-function selectNode(id) {
-  if (selectedId === id) { clearSelection(); return; }
-  selectedId = id;
-
-  // Find connected nodes
-  const connected = new Set([id]);
-  arrowGroups.forEach(ag => {
-    if (ag.from === id || ag.to === id) {
-      connected.add(ag.from);
-      connected.add(ag.to);
+    function showLoading(message) {
+      viewerStatus.textContent = message;
+      loadingState.classList.remove("hidden");
     }
-  });
 
-  // Apply classes to cards
-  document.querySelectorAll('.tcard').forEach(el => {
-    const eid = el.dataset.id;
-    el.classList.toggle('selected', eid === id);
-    el.classList.toggle('highlighted', connected.has(eid) && eid !== id);
-    el.classList.toggle('faded', !connected.has(eid));
-    el.style.boxShadow = eid === id
-      ? `0 0 0 3px ${AREAS[nodeMap[eid].area].color}, 0 6px 24px rgba(0,0,0,0.2)`
-      : connected.has(eid)
-        ? `0 0 0 2px ${AREAS[nodeMap[eid].area].color}88, 0 4px 16px rgba(0,0,0,0.12)`
-        : '';
-  });
-
-  // Apply classes to arrows
-  arrowGroups.forEach(ag => {
-    const isConnected = ag.from === id || ag.to === id;
-    ag.g.classList.toggle('highlighted', isConnected);
-    ag.g.classList.toggle('faded', !isConnected);
-  });
-
-  // Show info panel
-  showInfoPanel(id, connected);
-}
-
-function clearSelection() {
-  selectedId = null;
-  document.querySelectorAll('.tcard').forEach(el => {
-    el.classList.remove('selected','highlighted','faded');
-    el.style.boxShadow = '';
-  });
-  arrowGroups.forEach(ag => ag.g.classList.remove('highlighted','faded'));
-  document.getElementById('info-panel').classList.remove('open');
-}
-
-function showInfoPanel(id, connected) {
-  const node = nodeMap[id];
-  const cfg = AREAS[node.area];
-
-  document.getElementById('ip-name').textContent = id;
-  document.getElementById('ip-name').style.color = cfg.color;
-  document.getElementById('ip-db').textContent = cfg.db + ' database  ·  ' + cfg.label;
-  document.getElementById('ip-desc').textContent = node.desc;
-
-  // Columns
-  const colsDiv = document.getElementById('ip-cols');
-  colsDiv.innerHTML = '';
-  node.cols.forEach(([name, type, flag]) => {
-    const row = document.createElement('div');
-    row.className = 'ip-col';
-    if (flag) {
-      const b = document.createElement('span');
-      b.className = 'badge ' + (flag === 'PK+FK' ? 'pkfk' : flag === 'PK' ? 'pk' : 'fk');
-      b.textContent = flag;
-      row.appendChild(b);
+    function hideLoading(message) {
+      viewerStatus.textContent = message;
+      loadingState.classList.add("hidden");
     }
-    const nm = document.createElement('span'); nm.className = 'ip-col-name'; nm.textContent = name;
-    const tp = document.createElement('span'); tp.className = 'ip-col-type'; tp.textContent = type;
-    row.appendChild(nm); row.appendChild(tp);
-    colsDiv.appendChild(row);
-  });
 
-  // Relationships
-  const relsDiv = document.getElementById('ip-rels');
-  relsDiv.innerHTML = '';
-  arrowGroups.forEach(ag => {
-    if (ag.from !== id && ag.to !== id) return;
-    const isOut = ag.from === id;
-    const otherTable = isOut ? ag.to : ag.from;
-    const otherCfg = AREAS[nodeMap[otherTable].area];
-    const rel = document.createElement('div');
-    rel.className = 'ip-rel';
-    rel.style.borderLeft = `3px solid ${otherCfg.color}`;
-    rel.style.paddingLeft = '10px';
-    rel.style.marginLeft = '6px';
-    rel.innerHTML = `
-      <div class="ip-rel-dir" style="color:${otherCfg.color}">${isOut ? '→ outgoing' : '← incoming'}</div>
-      <div class="ip-rel-table" style="color:${otherCfg.color}">${otherTable}</div>
-      <div style="color:#374151;font-size:11.5px">${ag.label.replace('\n',' ')}</div>
-      <div class="ip-rel-via">${ag.via}</div>
-    `;
-    rel.style.cursor = 'pointer';
-    rel.addEventListener('click', () => selectNode(otherTable));
-    relsDiv.appendChild(rel);
-  });
+    function ensureFrameLoaded(viewId) {
+      const frame = frames[viewId];
+      const src = frame.getAttribute("data-src");
+      if (src) {
+        frame.src = src;
+        frame.removeAttribute("data-src");
+      }
+    }
 
-  document.getElementById('info-panel').classList.add('open');
-}
+    function activateView(viewId, updateHash = true) {
+      const view = views[viewId] || views.database;
+      ensureFrameLoaded(view.id);
 
-document.getElementById('close-panel').addEventListener('click', clearSelection);
+      buttons.forEach((button) => {
+        const isActive = button.dataset.view === view.id;
+        button.classList.toggle("active", isActive);
+        button.setAttribute("aria-selected", String(isActive));
+      });
 
-// Click on canvas to deselect
-outer.addEventListener('click', e => {
-  if (!e.target.closest('.tcard') && !e.target.closest('#info-panel')) clearSelection();
-});
+      Object.entries(frames).forEach(([id, frame]) => {
+        frame.classList.toggle("active", id === view.id);
+      });
 
-// ═══════════════════════════════════════════════════════════
-// SEARCH
-// ═══════════════════════════════════════════════════════════
-document.getElementById('search').addEventListener('input', function() {
-  const q = this.value.toLowerCase().trim();
-  if (!q) { clearSelection(); return; }
-  const match = nodes.find(n => n.id.toLowerCase().startsWith(q) || n.desc.toLowerCase().includes(q));
-  if (match) {
-    selectNode(match.id);
-    // Pan to node
-    const h = cardHeight(match);
-    const cx = outer.offsetWidth / 2;
-    const cy = outer.offsetHeight / 2;
-    tx = cx - (match.x + CARD_W/2) * scale;
-    ty = cy - (match.y + h/2) * scale;
-    applyTransform();
-  }
-});
+      viewerTitle.textContent = view.title;
+      viewerSubtitle.textContent = view.subtitle;
+      openCurrentDoc.href = view.src;
 
-// ═══════════════════════════════════════════════════════════
-// FILTER BY AREA
-// ═══════════════════════════════════════════════════════════
-let activeArea = 'all';
+      if (loadedViews.has(view.id)) {
+        hideLoading("Showing " + view.title.toLowerCase());
+      } else {
+        showLoading("Opening " + view.title.toLowerCase());
+      }
 
-document.querySelectorAll('.filter-btn').forEach(btn => {
-  const c = AREAS[btn.dataset.area];
-  if (c) {
-    btn.style.background = c.color + '22';
-    btn.style.color = c.color;
-    btn.style.borderColor = c.color + '55';
-  }
-  if (btn.dataset.area === 'all') {
-    btn.style.background = '#475569';
-    btn.style.color = '#fff';
-    btn.style.borderColor = '#475569';
-  }
+      if (updateHash && window.location.hash !== "#" + view.id) {
+        window.location.hash = view.id;
+      }
+    }
 
-  btn.addEventListener('click', () => {
-    activeArea = btn.dataset.area;
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    clearSelection();
-    applyAreaFilter();
-  });
-});
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => activateView(button.dataset.view));
+    });
 
-function applyAreaFilter() {
-  document.querySelectorAll('.tcard').forEach(el => {
-    const inArea = activeArea === 'all' || el.dataset.area === activeArea;
-    el.style.opacity = inArea ? '1' : '0.08';
-  });
-  arrowGroups.forEach(ag => {
-    const srcArea = nodeMap[ag.from]?.area;
-    const tgtArea = nodeMap[ag.to]?.area;
-    const visible = activeArea === 'all' || srcArea === activeArea || tgtArea === activeArea;
-    ag.g.style.opacity = visible ? '1' : '0.04';
-  });
-  // Zone backgrounds
-  document.querySelectorAll('.zone-bg rect').forEach(el => {
-    el.style.opacity = activeArea === 'all' || el.dataset.area === activeArea ? '0.6' : '0.1';
-  });
-}
+    Object.entries(frames).forEach(([id, frame]) => {
+      frame.addEventListener("load", () => {
+        loadedViews.add(id);
+        if (!frame.classList.contains("active")) {
+          return;
+        }
+        hideLoading("Showing " + views[id].title.toLowerCase());
+      });
+    });
 
-// ═══════════════════════════════════════════════════════════
-// RESET
-// ═══════════════════════════════════════════════════════════
-document.getElementById('btn-reset').addEventListener('click', () => {
-  clearSelection();
-  document.getElementById('search').value = '';
-  activeArea = 'all';
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector('.filter-btn[data-area="all"]').classList.add('active');
-  applyAreaFilter();
-  scale = 0.5; tx = 40; ty = 20;
-  applyTransform();
-});
+    window.addEventListener("hashchange", () => {
+      activateView(getRequestedView(), false);
+    });
 
-// ═══════════════════════════════════════════════════════════
-// KEYBOARD SHORTCUTS
-// ═══════════════════════════════════════════════════════════
-window.addEventListener('keydown', e => {
-  if (e.key === 'Escape') clearSelection();
-  if ((e.metaKey || e.ctrlKey) && e.key === '=') { scale = Math.min(2, scale * 1.15); applyTransform(); e.preventDefault(); }
-  if ((e.metaKey || e.ctrlKey) && e.key === '-') { scale = Math.max(0.15, scale / 1.15); applyTransform(); e.preventDefault(); }
-  if ((e.metaKey || e.ctrlKey) && e.key === '0') { scale=0.5; tx=40; ty=20; applyTransform(); e.preventDefault(); }
-});
-
-// Hint on first load
-setTimeout(() => {
-  const h = document.createElement('div');
-  h.style.cssText = 'position:fixed;bottom:18px;right:18px;background:#1e293b;color:#94a3b8;padding:10px 14px;border-radius:10px;font-size:11.5px;z-index:300;line-height:1.7;pointer-events:none;transition:opacity 1s';
-  h.innerHTML = '<b style="color:#e2e8f0">Click</b> a table to see connections<br><b style="color:#e2e8f0">Drag</b> to pan · <b style="color:#e2e8f0">Scroll</b> to zoom<br><b style="color:#e2e8f0">Cmd+0</b> to reset view';
-  document.body.appendChild(h);
-  setTimeout(() => h.style.opacity = '0', 5000);
-  setTimeout(() => h.remove(), 6000);
-}, 200);
-</script>
+    activateView(getRequestedView(), false);
+  </script>
 </body>
 </html>
